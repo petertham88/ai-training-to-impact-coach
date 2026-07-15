@@ -1,29 +1,30 @@
 # Product Requirements Document
 
 ## Problem
-Employees who attend AI training rarely apply it at work. There is no system to guide them from a real task to a tested, measurable AI-assisted workflow — and no way for managers or trainers to see who has actually changed their work.
+Employees and executives attend AI training but rarely change how they work. There is no system to guide them from a training session to a tested, reusable AI-assisted workflow — and no way for managers, HR, or the trainer to see who has actually implemented anything.
 
 ## Target Users
-- **Participants** — employees/executives who attended an AI training program
-- **Managers / HR / L&D** — need adoption and impact evidence
-- **Trainer (admin)** — reviews progress, spots blockers, demonstrates ROI to clients
+- **Participants** — employees, managers, executives who attended an AI training program, each working on real tasks from their own job
+- **Managers / HR / L&D** — need a simple view of team adoption, completed workflows, and recorded results
+- **Trainer (admin)** — reviews all progress, identifies blockers, demonstrates measurable outcomes to clients
 
 ## Core Objects
-`work_problems` · `use_cases` · `prompts` · `experiments` · `playbooks` · `outcomes` · `users`
+`participants` · `work_problems` · `use_cases` · `prompts` · `experiments` · `playbooks` · `outcomes` · `audit_logs`
 
 ## MVP Must-Haves
-- [ ] Participant guided flow: problem → use case → prompt → experiment → playbook → outcome
-- [ ] Prompt editor: create, iterate, save versions
-- [ ] Experiment log: record what worked / failed
-- [ ] Playbook save: lock a successful workflow as reusable
-- [ ] Outcome entry: time saved, quality improvement, business result
-- [ ] Manager dashboard: adoption counts, use cases in progress, completed playbooks, stuck participants
-- [ ] `/admin` route gated to trainer login only
-- [ ] Full app requires email + password login (gateway restriction)
-- [ ] Seed demo data so app renders immediately on first visit
+- [ ] Guided 6-step workflow: Problem → Use Case → Prompts → Experiment → Playbook → Outcome
+- [ ] Every step persists to the database; no dead buttons
+- [ ] Participant dashboard showing all their work problems and progress
+- [ ] Playbook saved and viewable as a reusable reference
+- [ ] Outcome recorded: time saved, quality improvement, business result
+- [ ] Seeded demo data renders without login (instantly demoable)
+- [ ] Email + password login gateway for participants
+- [ ] `/admin` restricted to trainer email only — shows adoption, completions, blockers
 
 ## Non-Goals (v1)
-Enterprise integrations, automatic prompt evaluation, workflow sharing, ROI analytics engine, multilingual support, gamification, advanced AI agents, confidential-document handling.
+Workflow sharing, automatic prompt scoring, ROI analytics, enterprise integrations, AI agents, multilingual support, gamification, confidential document handling.
 
-## Success Criteria
-A participant logs in, enters a real work problem, works through every step, saves a playbook, records time saved, and that result appears on the manager dashboard — end to end, no dead buttons, data persists on refresh.
+## Definition of Done
+**Pass:** A demo participant opens the app, creates a work problem, completes all 6 steps, saves a playbook, records a time-saved outcome, and the trainer sees that participant and result in `/admin` — all data persisted in the database, verified by page refresh.
+
+**Fail:** Any step does not save, the playbook is missing after refresh, or `/admin` is accessible without the trainer login.

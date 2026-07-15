@@ -1,26 +1,37 @@
 # Test Plan
 
-## v1 Success Scenario (manual, end-to-end)
-1. Open `/` — dashboard loads with seed data; no login prompt
-2. Click "Start New Workflow" → 6-step stepper appears
-3. Step 1: Enter work problem → Save → row appears in `work_problems`
-4. Step 2: Create use case → click "Suggest" → AI response populates fields → Save
-5. Step 3: Write prompt → click "Improve" → AI suggestion shown → Save as version 1
-6. Step 4: Log experiment → rating 4/5 → mark Success → Save
-7. Step 5: Save Playbook → title + steps locked → row in `playbooks`
-8. Step 6: Record outcome → "2 hours saved per week" → Save → row in `outcomes`
-9. Go to `/dashboard` → participant appears, progress = 100%, time saved = 2h
-10. **Pass:** all 9 steps complete, data persists on hard refresh, no console errors
+## Primary Scenario — Full Workflow End-to-End
 
-## Empty States
-- New participant with no workflows → stepper shows "Start your first workflow" prompt, not blank screen
-- Dashboard with no completed playbooks → shows "No completed workflows yet" message
+**Setup:** Open app as demo participant (seeded or newly signed up). No prior workflow exists.
 
-## Error Cases
-- AI API unavailable → form still saves; suggestion field shows "AI unavailable — enter manually"
-- Submit form with missing required field → inline validation, no DB write
-- Direct URL `/admin` as non-admin → redirected to `/` with "Access denied" toast
+| Step | Action | Expected Result |
+|---|---|---|
+| 1 | Click "Start new workflow" | Step 1 form appears; work_problems table empty for this user |
+| 2 | Fill in work problem title, description, current process; submit | Row saved to `work_problems`; step indicator advances to Step 2 |
+| 3 | Fill in use case title, AI tool, objective; submit | Row saved to `use_cases`; step 3 unlocked |
+| 4 | Type a prompt; save; edit and save again as version 2 | Two rows in `prompts` with version 1 and 2; version list visible |
+| 5 | Log experiment: fill what worked, what failed, output quality; submit | Row saved to `experiments` |
+| 6 | Save playbook: confirm workflow steps, select winning prompt; submit | Row saved to `playbooks`; playbook appears in library |
+| 7 | Record outcome: enter time saved, business result; submit | Row saved to `outcomes`; outcome visible on playbook detail |
+| 8 | Refresh browser | All data persists; step indicator still shows complete |
 
-## Data Integrity
-- Refresh after each step — data persists (not localStorage)
-- Delete a work problem → linked use cases, prompts, experiments cascade or block with clear message
+## Empty State Tests
+- New participant visits `/dashboard` → sees "No workflows yet" with a clear CTA
+- Playbook library with no saved playbooks → sees empty state message, not a blank page
+- Experiment log with no entries → prompt to log first experiment
+
+## Error State Tests
+- Submit Step 1 form with title blank → inline validation error, no DB write
+- Simulate network failure on form submit → error banner "Could not save — please try again"; no silent failure
+- Non-trainer email visits `/admin` → 403 page, not a blank screen
+- Unauthenticated user visits `/dashboard` (post lock-down) → redirect to `/login`
+
+## Permission Tests (post Sprint 4)
+- User A logs in; creates a work problem
+- User B logs in; cannot see User A's work problem in any query or URL
+- Trainer logs into `/admin`; sees both users' records
+
+## Data Integrity Tests
+- Delete a work problem → confirm associated use_cases, prompts, experiments are handled (cascade or block)
+- Mark outcome `verified_by_manager = true` → value persists after refresh
+- AI suggestion saved with `review_status = 'unreviewed'` → participant can approve or dismiss, status updates

@@ -2,32 +2,32 @@
 
 ## Risk Levels & Actions
 
-### Low — Auto (no approval)
-- Suggest use case title + goal from work problem text
-- Suggest improved prompt wording
-- Generate outcome summary from outcome fields
-- Tag work problem category (repetitive / data / drafting / research)
+### Low — Auto-execute (no approval)
+- **Tag use case category** from problem description (e.g. "reporting", "drafting", "analysis")
+- **Summarise experiment notes** into a 2-line what-worked / what-failed summary
+- **Generate outcome summary** paragraph from recorded metrics
 
-### Medium — Light approval (user confirms before saving)
-- Draft a full playbook structure from a successful experiment
-- Pre-fill outcome fields from experiment notes
+### Medium — Draft → Participant approves before saving
+- **Suggest use case** from work problem description
+- **Suggest prompt improvement** from current prompt + experiment feedback
+- **Draft playbook workflow steps** from completed experiments
 
-### High — Always approval (explicit user action required)
-- Share a playbook with another participant
-- Mark a participant as "stuck" and notify their manager
+### High — Always requires explicit approval
+- **Send progress report to manager** (email via Resend)
+- **Flag participant as stuck** and notify trainer
 
-### Critical — Human only
-- Delete a playbook or outcome record
-- Export participant data to external system
+### Critical — Human only (no agent)
+- Delete a participant record
+- Export bulk outcome data to client
+- Any action touching personal data at scale
 
 ## Named Tools (v1)
-- `suggest_use_case` — POST /api/ai/suggest-use-case
-- `improve_prompt` — POST /api/ai/improve-prompt
-- `summarise_outcome` — POST /api/ai/summarise-outcome
+- `suggest_use_case(problem_text)` → draft use case object
+- `suggest_prompt_improvement(prompt_text, experiment_notes)` → improved prompt draft
+- `summarise_outcome(outcome_fields)` → narrative summary
 
 ## Audit Log Fields
-`id` · `user_id` · `action` · `table_name` · `record_id` · `payload jsonb` · `created_at`
+`actor_email, action, object_type, object_id, detail{input, output, model, confidence}, created_at`
 
-## v1 vs Later
-- v1: three named tools, all low-risk, all server-side
-- Later: agent that monitors stuck participants and drafts coaching nudges (high risk, approval required)
+## v1 Scope
+Only low and medium actions ship in v1. High and critical actions are v2.

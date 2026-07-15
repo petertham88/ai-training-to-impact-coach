@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Header from "./components/Header";
 
 export const metadata: Metadata = {
-  title: "vibe-stack-supabase",
-  description: "Next.js + Supabase starter",
+  title: "AI Training → Impact Coach",
+  description:
+    "Guide employees from AI training to real, measured workplace workflows.",
 };
 
 export default function RootLayout({
@@ -13,7 +15,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased min-h-screen">
+        {/* @ts-expect-error Async Server Component */}
+        <Header />
+        <main className="mx-auto max-w-5xl px-4 py-8">{children}</main>
+      </body>
     </html>
   );
 }

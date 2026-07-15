@@ -1,1 +1,167 @@
 @import "tailwindcss";
+
+:root {
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --surface-2: #f2f4f9;
+  --border: #e4e7ef;
+  --text: #171a21;
+  --muted: #626a7a;
+  --brand: #4f46e5;
+  --brand-600: #4338ca;
+  --brand-tint: #eef0fe;
+  --green: #0f9d58;
+  --green-tint: #e6f5ec;
+  --amber: #b7791f;
+  --amber-tint: #fdf3e2;
+  --red: #d33a3a;
+  --red-tint: #fdecec;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1117;
+    --surface: #171a22;
+    --surface-2: #1e222c;
+    --border: #2a2f3a;
+    --text: #eef1f6;
+    --muted: #9aa3b2;
+    --brand: #7c7bff;
+    --brand-600: #6a68f5;
+    --brand-tint: #211f3a;
+    --green: #34c77b;
+    --green-tint: #14281f;
+    --amber: #e0a94a;
+    --amber-tint: #2b2213;
+    --red: #f06565;
+    --red-tint: #2c1616;
+  }
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+}
+
+/* ── component helpers ─────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.input,
+.textarea,
+.select {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.9rem;
+  outline: none;
+}
+.input:focus,
+.textarea:focus,
+.select:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-tint);
+}
+.textarea {
+  min-height: 92px;
+  resize: vertical;
+  line-height: 1.5;
+}
+.label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 0.3rem;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  font-size: 0.88rem;
+  padding: 0.55rem 0.95rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, opacity 0.12s;
+  text-decoration: none;
+  line-height: 1;
+}
+.btn-primary {
+  background: var(--brand);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: var(--brand-600);
+}
+.btn-ghost {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text);
+}
+.btn-ghost:hover {
+  background: var(--surface-2);
+}
+.btn-danger {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--red);
+}
+.btn-danger:hover {
+  background: var(--red-tint);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  background: var(--surface-2);
+  white-space: nowrap;
+}
+.badge-green {
+  color: var(--green);
+  background: var(--green-tint);
+  border-color: transparent;
+}
+.badge-amber {
+  color: var(--amber);
+  background: var(--amber-tint);
+  border-color: transparent;
+}
+.badge-brand {
+  color: var(--brand);
+  background: var(--brand-tint);
+  border-color: transparent;
+}
+.link {
+  color: var(--brand);
+  text-decoration: none;
+  font-weight: 600;
+}
+.link:hover {
+  text-decoration: underline;
+}
+.muted {
+  color: var(--muted);
+}
+.hairline {
+  border-top: 1px solid var(--border);
+}

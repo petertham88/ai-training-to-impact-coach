@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export default async function NewProblemPage() {
   const participant = await getCurrentParticipant();
-  if (!participant) redirect("/participants/new");
+  if (!participant) redirect("/login");
 
   return (
     <div className="max-w-2xl mx-auto space-y-5">

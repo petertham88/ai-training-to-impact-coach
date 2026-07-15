@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getWorkflowProgress } from "@/lib/queries";
-import { getParticipant } from "@/lib/queries";
+import { getWorkflowProgress, getParticipant } from "@/lib/queries";
+import { createClient } from "@/lib/supabase/server";
 import { STEPS } from "@/lib/types";
 import StepProgress from "@/app/components/StepProgress";
 import {
@@ -24,10 +24,14 @@ export default async function ProblemPage({
 }) {
   const { id } = await params;
   const sp = await searchParams;
-  const progress = await getWorkflowProgress(id);
+  const supabase = await createClient();
+  const progress = await getWorkflowProgress(id, supabase);
   if (!progress) notFound();
 
-  const participant = await getParticipant(progress.problem.participant_id);
+  const participant = await getParticipant(
+    progress.problem.participant_id,
+    supabase,
+  );
   const requested = sp.step ? parseInt(sp.step, 10) : progress.currentStep;
   // clamp: can view any step up to (and including) the current unlocked one
   const activeStep = Math.min(

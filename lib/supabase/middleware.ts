@@ -1,6 +1,24 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+// Routes reachable without a participant login. /admin has its own trainer
+// gate; /manager is a reporting view; /demo is the public showcase.
+const PUBLIC_PREFIXES = [
+  "/login",
+  "/signup",
+  "/demo",
+  "/auth",
+  "/admin",
+  "/manager",
+  "/api",
+];
+
+function isPublic(pathname: string): boolean {
+  return PUBLIC_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(p + "/"),
+  );
+}
+
 export async function updateSession(request: NextRequest) {
   const supabaseResponse = NextResponse.next({ request });
 
@@ -8,9 +26,6 @@ export async function updateSession(request: NextRequest) {
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   // If Supabase isn't configured, skip the auth refresh and pass through.
-  // Without this guard createServerClient throws "Your project's URL and Key
-  // are required", crashing the edge middleware on every route (500
-  // MIDDLEWARE_INVOCATION_FAILED).
   if (!url || !anonKey) {
     return supabaseResponse;
   }
@@ -34,8 +49,18 @@ export async function updateSession(request: NextRequest) {
       },
     });
 
-    // Refresh session so it doesn't expire while user is active
-    await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    const pathname = request.nextUrl.pathname;
+    if (!user && !isPublic(pathname)) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = "/login";
+      redirectUrl.search = "";
+      return NextResponse.redirect(redirectUrl);
+    }
+
     return response;
   } catch {
     // Never let an auth hiccup crash the entire edge middleware

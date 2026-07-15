@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getCurrentParticipant } from "@/lib/participant";
+import { createClient } from "@/lib/supabase/server";
 import {
   getWorkProblems,
   getWorkflowProgress,
@@ -20,24 +22,14 @@ const STATUS_LABEL: Record<string, string> = {
 
 export default async function Home() {
   const participant = await getCurrentParticipant();
+  if (!participant) redirect("/login");
 
-  if (!participant) {
-    return (
-      <div className="card p-8 text-center">
-        <h1 className="text-xl font-bold mb-2">No participants yet</h1>
-        <p className="muted mb-4">Create the first participant to begin.</p>
-        <Link href="/participants/new" className="btn btn-primary">
-          + New participant
-        </Link>
-      </div>
-    );
-  }
-
-  const problems = await getWorkProblems(participant.id);
+  const supabase = await createClient();
+  const problems = await getWorkProblems(participant.id, supabase);
   const progresses = await Promise.all(
-    problems.map((p) => getWorkflowProgress(p.id)),
+    problems.map((p) => getWorkflowProgress(p.id, supabase)),
   );
-  const playbooks = await getPlaybooksForParticipant(participant.id);
+  const playbooks = await getPlaybooksForParticipant(participant.id, supabase);
 
   const completedCount = progresses.filter(
     (p) => p && p.completedThrough >= 6,
@@ -64,9 +56,6 @@ export default async function Home() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Link href="/participants/new" className="btn btn-ghost">
-            + New participant
-          </Link>
           <Link href="/problems/new" className="btn btn-primary">
             + Start a new workflow
           </Link>

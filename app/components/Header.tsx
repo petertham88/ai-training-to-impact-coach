@@ -1,17 +1,12 @@
 import Link from "next/link";
-import { getParticipants } from "@/lib/queries";
-import { getCurrentParticipant } from "@/lib/participant";
-import ParticipantSwitcher from "./ParticipantSwitcher";
+import { getAuthUser } from "@/lib/auth";
 
 export default async function Header() {
-  let participants = [] as Awaited<ReturnType<typeof getParticipants>>;
-  let currentId: string | null = null;
+  let user = null as Awaited<ReturnType<typeof getAuthUser>>;
   try {
-    participants = await getParticipants();
-    const current = await getCurrentParticipant();
-    currentId = current?.id ?? null;
+    user = await getAuthUser();
   } catch {
-    // header stays usable even if data layer hiccups
+    // header stays usable even if auth check hiccups
   }
 
   return (
@@ -24,7 +19,7 @@ export default async function Header() {
     >
       <div className="mx-auto max-w-5xl px-4 h-14 flex items-center justify-between gap-3">
         <div className="flex items-center gap-5">
-          <Link href="/" className="flex items-center gap-2 no-underline">
+          <Link href={user ? "/" : "/login"} className="flex items-center gap-2 no-underline">
             <span
               className="grid place-items-center rounded-lg text-white font-bold"
               style={{ background: "var(--brand)", width: 26, height: 26, fontSize: 13 }}
@@ -35,15 +30,32 @@ export default async function Header() {
               Impact Coach
             </span>
           </Link>
-          <nav className="hidden sm:flex items-center gap-1 text-sm">
-            <NavLink href="/" label="My Workflows" />
-            <NavLink href="/playbooks" label="Playbooks" />
-            <NavLink href="/manager" label="Manager" />
-            <NavLink href="/admin" label="Admin" />
-          </nav>
+          {user && (
+            <nav className="hidden sm:flex items-center gap-1 text-sm">
+              <NavLink href="/" label="My Workflows" />
+              <NavLink href="/playbooks" label="Playbooks" />
+              <NavLink href="/manager" label="Manager" />
+              <NavLink href="/admin" label="Admin" />
+            </nav>
+          )}
         </div>
-        {participants.length > 0 && (
-          <ParticipantSwitcher participants={participants} currentId={currentId} />
+
+        {user ? (
+          <div className="flex items-center gap-2">
+            <span className="text-xs muted hidden sm:inline">{user.email}</span>
+            <Link href="/account" className="btn btn-ghost" style={{ padding: "0.4rem 0.7rem" }}>
+              Account
+            </Link>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <Link href="/demo" className="btn btn-ghost" style={{ padding: "0.4rem 0.7rem" }}>
+              Demo
+            </Link>
+            <Link href="/login" className="btn btn-primary" style={{ padding: "0.4rem 0.7rem" }}>
+              Sign in
+            </Link>
+          </div>
         )}
       </div>
     </header>

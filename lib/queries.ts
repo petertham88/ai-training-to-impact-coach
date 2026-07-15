@@ -1,4 +1,5 @@
-import { db, withRetry } from "@/lib/supabase/data";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { db, serviceDb, withRetry } from "@/lib/supabase/data";
 import type {
   Participant,
   WorkProblem,
@@ -24,9 +25,12 @@ export async function getParticipants(): Promise<Participant[]> {
   });
 }
 
-export async function getParticipant(id: string): Promise<Participant | null> {
+export async function getParticipant(
+  id: string,
+  client: SupabaseClient = db(),
+): Promise<Participant | null> {
   return withRetry(async () => {
-    const { data, error } = await db()
+    const { data, error } = await client
       .from("participants")
       .select("*")
       .eq("id", id)
@@ -40,9 +44,10 @@ export async function getParticipant(id: string): Promise<Participant | null> {
 
 export async function getWorkProblems(
   participantId: string,
+  client: SupabaseClient = db(),
 ): Promise<WorkProblem[]> {
   return withRetry(async () => {
-    const { data, error } = await db()
+    const { data, error } = await client
       .from("work_problems")
       .select("*")
       .eq("participant_id", participantId)
@@ -52,9 +57,12 @@ export async function getWorkProblems(
   });
 }
 
-export async function getWorkProblem(id: string): Promise<WorkProblem | null> {
+export async function getWorkProblem(
+  id: string,
+  client: SupabaseClient = db(),
+): Promise<WorkProblem | null> {
   return withRetry(async () => {
-    const { data, error } = await db()
+    const { data, error } = await client
       .from("work_problems")
       .select("*")
       .eq("id", id)
@@ -68,9 +76,10 @@ export async function getWorkProblem(id: string): Promise<WorkProblem | null> {
 
 export async function getUseCaseForProblem(
   workProblemId: string,
+  client: SupabaseClient = db(),
 ): Promise<UseCase | null> {
   return withRetry(async () => {
-    const { data, error } = await db()
+    const { data, error } = await client
       .from("use_cases")
       .select("*")
       .eq("work_problem_id", workProblemId)
@@ -82,9 +91,12 @@ export async function getUseCaseForProblem(
   });
 }
 
-export async function getUseCase(id: string): Promise<UseCase | null> {
+export async function getUseCase(
+  id: string,
+  client: SupabaseClient = db(),
+): Promise<UseCase | null> {
   return withRetry(async () => {
-    const { data, error } = await db()
+    const { data, error } = await client
       .from("use_cases")
       .select("*")
       .eq("id", id)
@@ -94,9 +106,12 @@ export async function getUseCase(id: string): Promise<UseCase | null> {
   });
 }
 
-export async function getPrompts(useCaseId: string): Promise<Prompt[]> {
+export async function getPrompts(
+  useCaseId: string,
+  client: SupabaseClient = db(),
+): Promise<Prompt[]> {
   return withRetry(async () => {
-    const { data, error } = await db()
+    const { data, error } = await client
       .from("prompts")
       .select("*")
       .eq("use_case_id", useCaseId)
@@ -106,9 +121,12 @@ export async function getPrompts(useCaseId: string): Promise<Prompt[]> {
   });
 }
 
-export async function getExperiments(useCaseId: string): Promise<Experiment[]> {
+export async function getExperiments(
+  useCaseId: string,
+  client: SupabaseClient = db(),
+): Promise<Experiment[]> {
   return withRetry(async () => {
-    const { data, error } = await db()
+    const { data, error } = await client
       .from("experiments")
       .select("*")
       .eq("use_case_id", useCaseId)
@@ -120,9 +138,10 @@ export async function getExperiments(useCaseId: string): Promise<Experiment[]> {
 
 export async function getPlaybookForUseCase(
   useCaseId: string,
+  client: SupabaseClient = db(),
 ): Promise<Playbook | null> {
   return withRetry(async () => {
-    const { data, error } = await db()
+    const { data, error } = await client
       .from("playbooks")
       .select("*")
       .eq("use_case_id", useCaseId)
@@ -134,9 +153,12 @@ export async function getPlaybookForUseCase(
   });
 }
 
-export async function getPlaybook(id: string): Promise<Playbook | null> {
+export async function getPlaybook(
+  id: string,
+  client: SupabaseClient = db(),
+): Promise<Playbook | null> {
   return withRetry(async () => {
-    const { data, error } = await db()
+    const { data, error } = await client
       .from("playbooks")
       .select("*")
       .eq("id", id)
@@ -148,9 +170,10 @@ export async function getPlaybook(id: string): Promise<Playbook | null> {
 
 export async function getOutcomeForPlaybook(
   playbookId: string,
+  client: SupabaseClient = db(),
 ): Promise<Outcome | null> {
   return withRetry(async () => {
-    const { data, error } = await db()
+    const { data, error } = await client
       .from("outcomes")
       .select("*")
       .eq("playbook_id", playbookId)
@@ -166,11 +189,12 @@ export async function getOutcomeForPlaybook(
 
 export async function getWorkflowProgress(
   workProblemId: string,
+  client: SupabaseClient = db(),
 ): Promise<WorkflowProgress | null> {
-  const problem = await getWorkProblem(workProblemId);
+  const problem = await getWorkProblem(workProblemId, client);
   if (!problem) return null;
 
-  const useCase = await getUseCaseForProblem(workProblemId);
+  const useCase = await getUseCaseForProblem(workProblemId, client);
   let prompts: Prompt[] = [];
   let experiments: Experiment[] = [];
   let playbook: Playbook | null = null;
@@ -178,11 +202,11 @@ export async function getWorkflowProgress(
 
   if (useCase) {
     [prompts, experiments, playbook] = await Promise.all([
-      getPrompts(useCase.id),
-      getExperiments(useCase.id),
-      getPlaybookForUseCase(useCase.id),
+      getPrompts(useCase.id, client),
+      getExperiments(useCase.id, client),
+      getPlaybookForUseCase(useCase.id, client),
     ]);
-    if (playbook) outcome = await getOutcomeForPlaybook(playbook.id);
+    if (playbook) outcome = await getOutcomeForPlaybook(playbook.id, client);
   }
 
   let completedThrough = 1; // the problem always exists = step 1 done
@@ -218,9 +242,10 @@ export async function getProblemStepCounts(workProblemId: string): Promise<{
 
 export async function getPlaybooksForParticipant(
   participantId: string,
+  client: SupabaseClient = db(),
 ): Promise<Playbook[]> {
   return withRetry(async () => {
-    const { data, error } = await db()
+    const { data, error } = await client
       .from("playbooks")
       .select("*")
       .eq("participant_id", participantId)
@@ -231,8 +256,9 @@ export async function getPlaybooksForParticipant(
 }
 
 export async function getAllPlaybooks(): Promise<Playbook[]> {
+  // Shared cohort reference library — reads across all participants.
   return withRetry(async () => {
-    const { data, error } = await db()
+    const { data, error } = await serviceDb()
       .from("playbooks")
       .select("*")
       .order("created_at", { ascending: false });
@@ -252,17 +278,18 @@ export type PlaybookDetail = {
 export async function getPlaybookDetail(
   id: string,
 ): Promise<PlaybookDetail | null> {
-  const playbook = await getPlaybook(id);
+  const svc = serviceDb();
+  const playbook = await getPlaybook(id, svc);
   if (!playbook) return null;
   const [useCase, outcome, participant] = await Promise.all([
-    getUseCase(playbook.use_case_id),
-    getOutcomeForPlaybook(playbook.id),
-    getParticipant(playbook.participant_id),
+    getUseCase(playbook.use_case_id, svc),
+    getOutcomeForPlaybook(playbook.id, svc),
+    getParticipant(playbook.participant_id, svc),
   ]);
   let winningPrompt: Prompt | null = null;
   if (playbook.winning_prompt_id) {
     winningPrompt = await withRetry(async () => {
-      const { data, error } = await db()
+      const { data, error } = await svc
         .from("prompts")
         .select("*")
         .eq("id", playbook.winning_prompt_id)
@@ -278,7 +305,7 @@ export async function getPlaybookDetail(
 
 export async function getRecentAuditLogs(limit = 50): Promise<AuditLog[]> {
   return withRetry(async () => {
-    const { data, error } = await db()
+    const { data, error } = await serviceDb()
       .from("audit_logs")
       .select("*")
       .order("created_at", { ascending: false })
@@ -321,7 +348,7 @@ export type Overview = {
 
 async function all<T>(table: string): Promise<T[]> {
   return withRetry(async () => {
-    const { data, error } = await db().from(table).select("*");
+    const { data, error } = await serviceDb().from(table).select("*");
     if (error) throw error;
     return (data ?? []) as T[];
   });
@@ -346,7 +373,7 @@ export async function getOverview(): Promise<Overview> {
     all<Experiment>("experiments"),
     all<Prompt>("prompts"),
     withRetry(async () => {
-      const { data, error } = await db()
+      const { data, error } = await serviceDb()
         .from("audit_logs")
         .select("object_id, detail, created_at")
         .eq("action", "participant.coaching_note")
@@ -499,7 +526,7 @@ export async function getCoachingNote(
   participantId: string,
 ): Promise<string> {
   return withRetry(async () => {
-    const { data, error } = await db()
+    const { data, error } = await serviceDb()
       .from("audit_logs")
       .select("detail")
       .eq("action", "participant.coaching_note")
